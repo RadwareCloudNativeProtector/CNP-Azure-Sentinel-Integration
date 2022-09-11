@@ -1,0 +1,124 @@
+[
+    {
+        "accountIds": [
+            "701234533774"
+        ],
+        "accountVendor": "AWS",
+        "objectType": "Alert",
+        "objectPortalURL": "https://portal.cwp.radwarecloud.com/#/data-center/alert-details/377727054857",
+        "id": "377727054857",
+        "title": "New role created by user cwp-simulation-1-user-1640789614779",
+        "score": "9",
+        "createdDate": 1640790004167,
+        "updatedDate": 1640790076210,
+        "vendor": "Radware",
+        "apiVersion": "1.00",
+        "status": "NEW",
+        "activities": [
+            {
+                "name": "rdsSnapshotSharedToThePublic",
+                "activityId": "377727125880",
+                "title": "RDS snapshot share to the public",
+                "detectionTime": 1640790076122,
+                "attackStage": "DATA EXFILTRATION",
+                "source": "CloudTrail",
+                "invocationSource": "15.152.21.229",
+                "identity": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779",
+                "affectedResources": {
+                    "mbi": "RdsSnapshotSharedToThePublic",
+                    "sharedResourceName": "cwp-simulation-1-2-rds-snapshot-1640789614779"
+                }
+            },
+            {
+                "name": "shareEC2SnapshotPublic",
+                "activityId": "377727125879",
+                "title": "Share storage volume snapshots by role cwp-simulation-1-role-1640789614779",
+                "detectionTime": 1640790074313,
+                "attackStage": "DATA EXFILTRATION",
+                "source": "CloudTrail",
+                "invocationSource": "15.152.21.229",
+                "identity": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779",
+                "affectedResources": {
+                    "targetComputer": "i-0e678918398ae99af",
+                    "snapshotId": "snap-099d7fe7e2308c666"
+                }
+            },
+            {
+                "name": "ebsVolumeEnumeration",
+                "activityId": "377727125878",
+                "title": "Storage volumes enumeration by role cwp-simulation-1-role-1640789614779",
+                "detectionTime": 1640790073040,
+                "attackStage": "DATA ACQUISITION",
+                "source": "CloudTrail",
+                "invocationSource": "15.152.21.229",
+                "identity": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779",
+                "affectedResources": {
+                    "targetComputer": "i-0e678918398ae99af",
+                    "storage volumes": "[vol-00e9a4d403a6973d9, vol-0f93fe63fc26f570a, vol-0a205c48a27dc2938]"
+                }
+            },
+            {
+                "name": "highRiskApiUsage",
+                "activityId": "377727125877",
+                "title": "First use of High Risk actions by role cwp-simulation-1-role-1640789614779",
+                "detectionTime": 1640790071819,
+                "attackStage": "DATA ACQUISITION",
+                "source": "CloudTrail",
+                "invocationSource": "15.152.21.229",
+                "identity": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779",
+                "affectedResources": {
+                    "apiList": "[ec2:AttachVolume, ec2:ModifySnapshotAttribute, rds:CopyDBSnapshot, rds:ModifyDBSnapshotAttribute]",
+                    "API Calls": "[ec2:AttachVolume, ec2:ModifySnapshotAttribute, rds:CopyDBSnapshot, rds:ModifyDBSnapshotAttribute]"
+                }
+            },
+            {
+                "name": "highRiskApiUsage",
+                "activityId": "377727125873",
+                "title": "First use of High Risk actions by user cwp-simulation-1-user-1640789614779",
+                "detectionTime": 1640790005281,
+                "attackStage": "DATA ACQUISITION",
+                "source": "CloudTrail",
+                "invocationSource": "3.234.251.96",
+                "identity": "arn:aws:iam::701234533774:user/cwp-simulation-1-user-1640789614779",
+                "affectedResources": {
+                    "apiList": "[iam:CreateRole, ec2:RunInstances, iam:AttachRolePolicy]",
+                    "API Calls": "[iam:CreateRole, ec2:RunInstances, iam:AttachRolePolicy]"
+                }
+            },
+            {
+                "name": "modificationRolePermissions",
+                "activityId": "377727125872",
+                "title": "Modification of role permissions",
+                "detectionTime": 1640790004021,
+                "attackStage": "PRIVILEGE ESCALATION",
+                "source": "CloudTrail",
+                "invocationSource": "3.234.251.96",
+                "identity": "arn:aws:iam::701234533774:user/cwp-simulation-1-user-1640789614779",
+                "affectedResources": {
+                    "sourceArn": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779",
+                    "policyName": "AdministratorAccess",
+                    "eventName": "AttachRolePolicy"
+                }
+            },
+            {
+                "name": "newRole",
+                "activityId": "377727125871",
+                "title": "New role created by user cwp-simulation-1-user-1640789614779",
+                "detectionTime": 1640790002738,
+                "attackStage": "PERSISTENCE",
+                "source": "CloudTrail",
+                "invocationSource": "3.234.251.96",
+                "identity": "arn:aws:iam::701234533774:user/cwp-simulation-1-user-1640789614779",
+                "affectedResources": {
+                    "sourceAccount": "arn:aws:iam::701234533774:role/cwp-simulation-1-role-1640789614779"
+                }
+            }
+        ],
+        "attackSteps": {
+            "PERSISTENCE": 1,
+            "PRIVILEGE ESCALATION": 1,
+            "DATA ACQUISITION": 3,
+            "DATA EXFILTRATION": 2
+        }
+    }
+]

@@ -1,0 +1,79 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Outputs:
+  InputTopicARN:
+    Description: 'SNS Topic ARN, destination for CWP Alerts'
+    Value:
+      Ref: InputTopic
+
+Parameters:
+  AzureSentinelSharedKey:
+    Default: ''
+    Description: 'REQUIRED - Azure Sentinel shared key'
+    Type: String
+  AzureSentinelCustomerWorkspaceID:
+    Default: ''
+    Description: 'REQUIRED - Azure Sentinel workspace ID'
+    Type: String
+  CwpScoreFilter:
+    Default: '7,8,9,10'
+    Description: 'REQUIRED - CWP risk scores which will trigger an alert (comma separated values: 1 through 10)'
+    Type: String
+  CNPAccountId:
+    AllowedPattern: '[0-9]*'
+    MinLength: '12'
+    MaxLength: '12'
+    Type: String
+    Description: The automated response Radware account ID to send publish notifications to. specified at the portal under Settings -> Cloud Accounts -> (Automated response) Activate
+    Default: '438643506655'
+    
+Resources:
+  InputTopic:
+    Type: AWS::SNS::Topic
+  InputTopicPolicy:
+    Properties:
+      PolicyDocument:
+        Id: CwpSnsPolicy
+        Statement:
+        - Action: sns:Publish
+          Effect: Allow
+          Principal:
+            AWS: !Join [ '' , [ 'arn:aws:iam::' , !Ref CNPAccountId , ':root'] ]
+          Resource:
+            Ref: InputTopic
+          Sid: CwpSnsPolicy
+        Version: '2012-10-17'
+      Topics:
+      - Ref: InputTopic
+    Type: AWS::SNS::TopicPolicy
+  Solution:
+    Properties:
+      CodeUri: 
+        Bucket: !Join [ '' , [ 'cnp-public-' , !Ref AWS::Region ] ]
+          # If deploying CFT manually, replace this join with a string (e.g. "Bucket: my-custom-bucket-name"
+        Key: 'Azure-Sentinel-integration/Azure-Sentinel-integration.zip'
+        # Key is the name of the zip file which contains lambda_function.py
+      Description: 'CWP-Alerts -> SNS -> Lambda -> Azure Log Analytics API (Sentinel)'
+      Environment:
+        Variables:
+          shared_key:
+            Ref: AzureSentinelSharedKey
+          customer_id:
+            Ref: AzureSentinelCustomerWorkspaceID
+          cwp_score_filter:
+            Ref: CwpScoreFilter
+      Events:
+        CwpAlerts:
+          Type: SNS
+          Properties:
+            Topic: !Ref InputTopic
+      FunctionName: !Ref AWS::StackName
+      Handler: lambda_function.lambda_handler
+      Runtime: python3.8
+      Timeout: 7
+    Type: AWS::Serverless::Function
+  LambdaLogsLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${Solution}"
+      RetentionInDays: 30
+Transform: AWS::Serverless-2016-10-31

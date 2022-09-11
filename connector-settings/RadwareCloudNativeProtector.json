@@ -1,0 +1,141 @@
+{
+    "id": "RadwareCloudNativeProtector",
+    "title": "Radware Cloud Native Protector",
+    "publisher": "Radware",
+    "descriptionMarkdown": "Use this template if you have a REST API connection to push data from Radware Cloud Native Protector into Microsoft Sentinel Log Analytics.",
+    "graphQueries": [
+        {
+            "metricName": "Total data received",
+            "legend": "RadwareCNP_CL",
+            "baseQuery": "RadwareCNP_CL"
+        }
+    ],
+    "sampleQueries": [
+        {
+            "description" : "All Radware CNP Alerts",
+            "query": "RadwareCNP_CL\n | sort by TimeGenerated desc"
+        }
+    ],
+    "dataTypes": [
+        {
+            "name": "RadwareCNP_CL",
+            "lastDataReceivedQuery": "RadwareCNP_CL\n            | summarize Time = max(TimeGenerated)\n            | where isnotempty(Time)"
+        }
+    ],
+    "connectivityCriterias": [
+        {
+            "type": "IsConnectedQuery",
+            "value": [
+                "RadwareCNP_CL\n            | summarize LastLogReceived = max(TimeGenerated)\n            | project IsConnected = LastLogReceived > ago(30d)"
+            ]
+        }
+    ],
+    "availability": {
+        "status": 1,
+        "isPreview": true
+    },
+    "permissions": {
+        "resourceProvider": [
+            {
+                "provider": "Microsoft.OperationalInsights/workspaces",
+                "permissionsDisplayText": "read and write permissions are required.",
+                "providerDisplayName": "Workspace",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                    "write": true,
+                    "read": true,
+                    "delete": true
+                }
+            },
+            {
+                "provider": "Microsoft.OperationalInsights/workspaces/sharedKeys",
+                "permissionsDisplayText": "read permissions to shared keys for the workspace are required. [See the documentation to learn more about workspace keys](https://docs.microsoft.com/azure/azure-monitor/platform/agent-windows#obtain-workspace-id-and-key).",
+                "providerDisplayName": "Keys",
+                "scope": "Workspace",
+                "requiredPermissions": {
+                    "action": true
+                }
+            }
+        ],
+        "customs": [
+            {
+                "name": "Deploy Amazon CloudFormation Template",
+                "description": "use the predefined CFT yaml provided here to deploy Lambda function and SNS topic that will publish the data to Microsoft Sentinel"
+            },
+            {
+                "name": "Configure SNS from Cloud Native Protector portal",
+                "description": "choose the account/accounts that you would like to get alerts on and activate it by configuring SNS"
+            }
+        ]
+    },
+    "instructionSteps": [
+        {
+            "title": "1. Deploy Lambda function to send alerts using Cloud Formation Template",
+            "description": "",
+            "innerSteps": [
+                {
+                    "description": "Deploy the [Cloud Formation Template](https://console.aws.amazon.com/cloudformation/home?#/stacks/new?stackName=RadwareCWP-AzureSentinel-Integration&templateURL=https://cnp-public-us-east-1.s3.amazonaws.com/Azure-Sentinel-integration/radware_cwp_sentinel_integration.yaml) and click on Next"
+                },
+                {
+                    "description": "As an organization administrator, authenticate on [CNP Portal](https://portal.cwp.radwarecloud.com/#/login) and find the Radware AWS account id under Settings -> [Cloud accounts](https://portal.cwp.radwarecloud.com/#/data-center/settings/manage-cloud-accounts) -> Activate and copy it."
+                },
+                {
+                    "description": "Enter your Shared Key, WorkspaceID and the Radware account ID found in the step before",
+                    "instructions": [
+                        {
+                            "parameters": {
+                                "fillWith": [
+                                    "WorkspaceId"
+                                ],
+                                "label": "Workspace ID",
+                                "value": "{0}"
+                            },
+                            "type": "CopyableLabel"
+                        },
+                        {
+                            "parameters": {
+                                "fillWith": [
+                                    "PrimaryKey"
+                                ],
+                                "label": "Primary key",
+                                "value": "{0} "
+                            },
+                            "type": "CopyableLabel"
+                        }
+                    ]
+                },
+                {
+                    "description": "Finish CloudFormation template deployment"
+                }
+            ]
+        },
+        {
+            "title": "2. configure CNP to send alerts from the Cloud Native Protector portal",
+            "innerSteps": [
+                {
+                    "description": "navigate to the [CloudFormation](https://console.aws.amazon.com/cloudformation/home) stack created and copy the SNS topic's ARN (Outputs -> InputTopicARN)"
+                },
+                {
+                    "description": "Going back to the CNP portal paste the SNS Topic's ARN under Settings -> [Cloud accounts](https://portal.cwp.radwarecloud.com/#/data-center/settings/manage-cloud-accounts) -> Activate"
+                }
+            ]
+        }
+    ],
+    "metadata": {
+        "id": "02c8e623-8fdc-4402-b50e-96fc67efe46f",
+        "version": "1.0.0",
+        "kind": "dataConnector",
+        "source": {
+            "kind": "community",
+            "name": "Radware's Cloud Native Protector Team"
+        },
+        "author": {
+            "name": "Chen Sagi"
+        },
+        "support": {
+            "tier": "community",
+            "name": "Radware",
+            "email": "support@radware.com"
+        }
+    }
+}
